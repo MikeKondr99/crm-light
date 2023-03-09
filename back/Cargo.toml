@@ -1,0 +1,25 @@
+[package]
+name = "crm_light"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+env_logger = "0.10.0"
+diesel_logger = "0.2.0"
+dotenvy = "0.15"
+thiserror = "^1"
+
+[dependencies.rocket]
+version = "0.5.0-rc.2"
+features = ["json"]
+
+[dependencies.serde]
+version = "^1"
+features = ["derive"]
+
+[dependencies.diesel]
+version = "^2"
+features = ["sqlite"]
+

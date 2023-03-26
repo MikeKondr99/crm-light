@@ -1,0 +1,48 @@
+
+.form_auth_block {
+    height: 100vh;
+    width: 500px;
+    margin: auto;
+    display: flex;
+    align-items: center 
+}
+
+.form_auth_block_content {
+    width: 100%;
+    padding: 20px;
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    box-shadow: 5px 10px #888888;
+}
+
+.form_auth_style {
+    display: flex;
+    flex-direction: column;
+}
+
+.form_auth input {
+    background: transparent;
+    border: 1px solid #444;
+    width: 100%;
+    margin: auto;
+    padding: 8px 12px;
+    border-radius: 5px;
+}
+
+
+.form_auth button {
+    width: 100%;
+}
+
+.form_auth_block_head_text {
+    margin: 0;
+    padding: 0 20px 20px;
+    text-align: center;
+    font-size: 22px;
+}
+
+.error {
+    width: 100%;
+    align-items: center;
+    text-align: center;
+}

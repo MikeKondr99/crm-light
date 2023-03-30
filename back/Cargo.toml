@@ -3,13 +3,17 @@ name = "crm_light"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 env_logger = "0.10.0"
 diesel_logger = "0.2.0"
 dotenvy = "0.15"
 thiserror = "^1"
+rocket-jwt = "0.5.0"
+jsonwebtoken = "8.3.0"
+[dependencies.chrono]
+version = "0.4.24"
+features = ["serde"]
 
 [dependencies.rocket]
 version = "0.5.0-rc.2"
@@ -21,5 +25,5 @@ features = ["derive"]
 
 [dependencies.diesel]
 version = "^2"
-features = ["sqlite"]
+features = ["sqlite","chrono"]
 

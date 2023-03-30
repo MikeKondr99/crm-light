@@ -32,7 +32,7 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for RequestError {
                 // Не найдено в БД
                 NotFound => Status::NotFound,
                 // Нарушение уникальности (повторение PK)
-                DatabaseError(DatabaseErrorKind::UniqueViolation,_) => Status::BadRequest,
+                DatabaseError(DatabaseErrorKind::UniqueViolation,_) => Status::Conflict,
                 _ => Status::InternalServerError,
             }
             RequestError::VarError {..} => Status::InternalServerError

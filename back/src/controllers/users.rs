@@ -1,62 +1,79 @@
-use crate::{errors::{JsonResult, RequestError}};
+use crate::{errors::{JsonResult, MapStatus}};
 use diesel::prelude::*;
+use okapi::openapi3::OpenApi;
 use crate::models::*;
 use crate::schema::users::dsl::*;
-use rocket::serde::{json::Json};
-use super::{Routes, UserClaim};
+use rocket::{serde::{json::Json},http::Status};
+use super::{UserClaim};
+use rocket_okapi::{openapi, openapi_get_routes_spec};
 
-pub struct UserController;
-
-impl Routes for UserController {
-    fn routes() -> Vec<rocket::Route> {
-        routes![get_all,get,patch,post,delete]
-    }
+pub fn get_routes_and_docs() -> (Vec<rocket::Route>, OpenApi){
+    openapi_get_routes_spec![get_all,get,delete,patch,post]
 }
 
 /// Сокращенная версия для получения пользователя по id
-fn user_by_id(conn: &mut Conn,id: i32) -> Result<User,RequestError> {
-    Ok(users.filter(user_id.eq(id)).first(conn)?)
+fn user_by_id(conn: &mut Conn,id: i32) -> Result<User,Status> {
+    users.filter(user_id.eq(id)).first(conn).status()
 }
 
 
+///
+/// Получить список всех пользователей
+/// 
+#[openapi(tag = "Users")]
 #[get("/")]
-fn get_all() -> JsonResult<Vec<User>> {
+fn get_all(_user:UserClaim) -> JsonResult<Vec<User>> {
     let conn = &mut get_connection()?;
-    let res = users.load::<User>(conn)?;
+    let res = users.load::<User>(conn).status()?;
     Ok(Json(res))
 }
 
+///
+/// Получить пользователя по id
+/// 
+#[openapi(tag = "Users")]
 #[get("/<id>")]
-fn get(id:i32) -> JsonResult<User> {
+pub fn get(id:i32,_user:UserClaim) -> JsonResult<User> {
     let conn = &mut get_connection()?;
     let user = user_by_id(conn,id)?;
     Ok(Json(user))
 }
 
-// Нет проверки 
+///
+/// Создать пользователя
+/// 
+#[openapi(tag = "Users")]
 #[post("/", data = "<body>")]
-fn post(body: Json<InsertUser>,user:UserClaim) -> JsonResult<User> {
+pub fn post(body: Json<InsertUser>,_user:UserClaim) -> JsonResult<User> {
     let conn = &mut get_connection()?;
-    let _ = diesel::insert_into(users)
+    _ = diesel::insert_into(users)
         .values(&body.0)
-        .execute(conn)?;
+        .execute(conn).status()?;
     let user = user_by_id(conn,1)?;
     Ok(Json(user))
 
 }
 
+///
+/// Изменить пользователя
+/// 
+#[openapi(tag = "Users")]
 #[patch("/<id>", data = "<body>")]
-fn patch(id:i32,body: Json<UpdateUser>) -> JsonResult<User> {
+pub fn patch(id:i32,body: Json<UpdateUser>,_user:UserClaim) -> JsonResult<User> {
     let conn = &mut get_connection()?;
     let user = user_by_id(conn,id)?;
-    diesel::update(&user).set(body.0).execute(conn)?;
+    diesel::update(&user).set(body.0).execute(conn).status()?;
     Ok(Json(user))
 }
 
+///
+/// Удалить пользователя
+/// 
+#[openapi(tag = "Users")]
 #[delete("/<id>")]
-fn delete(id:i32) -> JsonResult<User> {
+pub fn delete(id:i32,_user:UserClaim) -> JsonResult<User> {
     let conn = &mut get_connection()?;
     let user = user_by_id(conn,id)?;
-    diesel::delete(&user).execute(conn)?;
+    diesel::delete(&user).execute(conn).status()?;
     Ok(Json(user))
 }

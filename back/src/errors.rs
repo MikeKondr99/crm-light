@@ -1,42 +1,44 @@
 use diesel::{ConnectionError, result::{Error::*, DatabaseErrorKind}};
-use thiserror::Error;
 use rocket::{
     serde::{json::Json},
     http::Status,
-    Request,response::{Responder, self}
 };
 
-#[derive(Error, Debug)]
-pub enum RequestError {
-    #[error("Не получилось подключится к БД")]
-    ConnectionError {
-        #[from] source: ConnectionError
-    },
-    #[error("Ошибка базы данных")]
-    DieselError {
-        #[from] source: diesel::result::Error
-    },
-    #[error("Ошибка переменной среды")]
-    VarError {
-        #[from] source: std::env::VarError
+pub type JsonResult<T> = std::result::Result<Json<T>,Status>;
+
+pub trait ToStatus {
+    fn to_status(self) -> Status;
+}
+
+pub trait MapStatus<R> {
+    fn status(self) -> Result<R,Status>;
+}
+
+impl<R,E:ToStatus> MapStatus<R> for Result<R,E> {
+    fn status(self) -> Result<R,Status> {
+        self.map_err(|e| e.to_status())
     }
 }
 
-pub type JsonResult<T> = std::result::Result<Json<T>,RequestError>;
+impl ToStatus for ConnectionError {
+    fn to_status(self) -> Status {
+        Status::ServiceUnavailable
+    }
+}
 
-impl<'r, 'o: 'r> Responder<'r, 'o> for RequestError {
-    fn respond_to(self, request: &'r Request<'_>) -> response::Result<'o> {
+impl ToStatus for diesel::result::Error {
+    fn to_status(self) -> Status {
         match self {
-            RequestError::ConnectionError {..} => Status::ServiceUnavailable,
-            RequestError::DieselError { source } => match source {
-                // Не найдено в БД
-                NotFound => Status::NotFound,
-                // Нарушение уникальности (повторение PK)
-                DatabaseError(DatabaseErrorKind::UniqueViolation,_) => Status::Conflict,
-                _ => Status::InternalServerError,
-            }
-            RequestError::VarError {..} => Status::InternalServerError
-        }.respond_to(request)
+            NotFound => Status::NotFound,
+            // Нарушение уникальности (повторение PK)
+            DatabaseError(DatabaseErrorKind::UniqueViolation,_) => Status::Conflict,
+            _ => Status::InternalServerError,
+        }
     }
 }
 
+impl ToStatus for std::env::VarError {
+    fn to_status(self) -> Status {
+        Status::InternalServerError
+    }
+}

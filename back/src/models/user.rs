@@ -2,9 +2,10 @@ use crate::schema::*;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+use rocket_okapi::JsonSchema;
 
 
-#[derive(Deserialize,Serialize,Clone)]
+#[derive(Deserialize,Serialize,Clone,JsonSchema)]
 #[serde(crate = "rocket::serde")]
 #[derive(Queryable,Identifiable)]
 #[diesel(primary_key(user_id))]
@@ -20,7 +21,8 @@ pub struct User {
     pub privilege_id: i32,
 }
 
-#[derive(Deserialize,Serialize,Clone)]
+
+#[derive(Deserialize,Serialize,Clone,JsonSchema)]
 #[serde(crate = "rocket::serde")]
 #[derive(Insertable)]
 #[diesel(table_name = users)]
@@ -32,7 +34,7 @@ pub struct InsertUser {
     pub patronymic: Option<String>,
 }
 
-#[derive(Deserialize,Serialize,Clone)]
+#[derive(Deserialize, Serialize, Clone,JsonSchema)]
 #[serde(crate = "rocket::serde")]
 #[derive(AsChangeset)]
 #[diesel(table_name = users)]

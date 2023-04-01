@@ -1,15 +1,24 @@
-pub mod schema;
-pub mod controllers;
-pub mod models;
-pub mod errors;
+mod controllers;
+mod cors;
+mod errors;
+mod models;
+mod schema;
 
-use rocket_okapi::{swagger_ui::{make_swagger_ui, SwaggerUIConfig}, mount_endpoints_and_merged_docs, settings::OpenApiSettings};
+use rocket_okapi::{
+    mount_endpoints_and_merged_docs,
+    settings::OpenApiSettings,
+    swagger_ui::{make_swagger_ui, SwaggerUIConfig},
+};
 // для env
 use dotenvy::dotenv;
 
-use crate::controllers::{auth, users};
+use crate::{
+    controllers::{auth, users},
+    cors::Cors,
+};
 
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
 
 fn get_docs() -> SwaggerUIConfig {
     SwaggerUIConfig {
@@ -21,9 +30,7 @@ fn get_docs() -> SwaggerUIConfig {
 #[launch]
 fn rocket() -> _ {
     dotenv().ok();
-    env_logger::builder()
-        .format_timestamp(None)
-        .init();
+    env_logger::builder().format_timestamp(None).init();
 
     let mut rocket = rocket::build();
     let config = OpenApiSettings::default();
@@ -33,5 +40,7 @@ fn rocket() -> _ {
         "/auth" => auth::get_routes_and_docs(),
         "/users" => users::get_routes_and_docs(),
     };
-    rocket.mount("/swagger",make_swagger_ui(&get_docs()))
+    rocket
+        .mount("/swagger", make_swagger_ui(&get_docs()))
+        .attach(Cors)
 }

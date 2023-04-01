@@ -1,0 +1,8 @@
+[global]
+port = 5000
+
+[development]
+address = "localhost"
+
+[production]
+address = "0.0.0.0"

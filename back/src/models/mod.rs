@@ -1,13 +1,14 @@
 mod user;
-use rocket::http::Status;
+mod privilege;
+
+
+pub use privilege::*;
 pub use user::*;
 
+use rocket::http::Status;
 use std::env;
-
-
 use diesel::prelude::*;
 use diesel_logger::LoggingConnection;
-
 use crate::errors::MapStatus;
 
 pub type Conn = LoggingConnection<SqliteConnection>;

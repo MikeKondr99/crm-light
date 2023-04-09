@@ -1,6 +1,6 @@
 use crate::schema::*;
 use chrono::NaiveDateTime;
-use diesel::prelude::*;
+use diesel::{Queryable, Identifiable, Insertable, AsChangeset};
 use serde::{Deserialize, Serialize};
 use rocket_okapi::JsonSchema;
 
@@ -8,9 +8,8 @@ use rocket_okapi::JsonSchema;
 #[derive(Deserialize,Serialize,Clone,JsonSchema)]
 #[serde(crate = "rocket::serde")]
 #[derive(Queryable,Identifiable)]
-#[diesel(primary_key(user_id))]
 pub struct User {
-    pub user_id: i32,
+    pub id: i32,
     pub username: String,
     pub password: String,
     pub first_name: Option<String>,
@@ -18,7 +17,6 @@ pub struct User {
     pub patronymic: Option<String>,
     pub block: i32,
     pub last_active: NaiveDateTime,
-    pub privilege_id: i32,
 }
 
 
@@ -44,5 +42,5 @@ pub struct UpdateUser {
     pub patronymic: Option<String>,
     pub block: Option<i32>,
     pub last_active: Option<NaiveDateTime>,
-    pub privilege_id: i32,
 }
+

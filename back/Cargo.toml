@@ -5,12 +5,12 @@ edition = "2021"
 
 
 [dependencies]
-env_logger = "0.10.0"
+env_logger    = "0.10.0"
 diesel_logger = "0.2.0"
-dotenvy = "0.15"
-thiserror = "^1"
-rocket-jwt = "0.5.0"
-jsonwebtoken = "8.3.0"
+dotenvy       = "0.15"
+thiserror     = "^1"
+rocket-jwt    = "0.5.0"
+jsonwebtoken  = "8.3.0"
 
 [dependencies.schemars]
 version = "0.8.12"
@@ -38,4 +38,3 @@ features = ["sqlite","chrono"]
 
 [dependencies.okapi]
 version = "0.7.0-rc.1"
-

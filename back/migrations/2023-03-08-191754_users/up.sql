@@ -1,4 +1,3 @@
--- Your SQL goes here
 CREATE TABLE users (
     user_id INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL ,
     name TEXT NOT NULL,

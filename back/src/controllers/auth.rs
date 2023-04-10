@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use chrono::{NaiveDateTime, NaiveDate, DateTime, Utc};
 use rocket::{serde::{json::Json},http::Status};
 use diesel::prelude::*;
 use okapi::openapi3::{OpenApi, SecurityScheme, SecuritySchemeData, Object, SecurityRequirement};
@@ -30,12 +30,7 @@ pub fn get_routes_and_docs() -> (Vec<rocket::Route>, OpenApi){
 #[serde(crate = "rocket::serde")]
 pub struct UserInfo {
     pub token: String,
-    pub privileges: Vec<String>,
-    pub username: String,
-    pub first_name: Option<String>,
-    pub last_name: Option<String>,
-    pub patronymic: Option<String>,
-    pub last_active: NaiveDateTime,
+    pub claim: UserClaim,
 }
 
 #[derive(Deserialize,Serialize,Clone,JsonSchema)]
@@ -46,9 +41,14 @@ pub struct LoginInfo {
 }
 
 #[jwt(SECRET,exp=3600)]
-#[derive(JsonSchema)]
+#[derive(JsonSchema,Clone)]
 pub struct UserClaim {
-    login: String,
+    pub username: String,
+    pub privileges: Vec<String>,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub patronymic: Option<String>,
+    pub last_active: NaiveDateTime,
 }
 
 impl<'a> OpenApiFromRequest<'a> for UserClaim {
@@ -84,7 +84,12 @@ impl<'a> OpenApiFromRequest<'a> for UserClaim {
 #[post("/")]
 pub fn create_token() -> String {
     let user_claim = UserClaim {
-        login: "lox".into(),
+        username: "SuperAdmin".into(),
+        privileges: vec![],
+        first_name: None,
+        last_name: None,
+        patronymic: None,
+        last_active: Utc::now().naive_utc(),
     };
     UserClaim::sign(user_claim) // Посылаем Jwt токен
 }
@@ -96,26 +101,26 @@ pub fn create_token() -> String {
 #[post("/new", data = "<body>")]
 pub fn create_token2(body:Json<LoginInfo>) -> JsonResult<UserInfo> {
     let conn = &mut get_connection()?;
-    let user: User = users
+    let usr: User = users
         .filter(user::username.eq(&body.username))
         .filter(user::password.eq(&body.password))
         .first(conn).status()?;
     let pris: Vec<String> = user_privileges
         .inner_join(privileges.on(privilege::id.eq(user_privilege::privilege_id)))
-        .filter(user_privilege::user_id.eq(user.id))
+        .filter(user_privilege::user_id.eq(usr.id))
         .select(privilege::privilege_name)
         .load(conn).status()?;
     let user_claim = UserClaim {
-        login: body.username.clone(),
+        username: usr.username,
+        privileges: pris,
+        first_name: usr.first_name,
+        last_name: usr.last_name,
+        patronymic: usr.patronymic,
+        last_active: usr.last_active,
     };
     Ok(Json(UserInfo {
-        token: UserClaim::sign(user_claim),
-        username: String::from(&body.username),
-        privileges: pris,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        patronymic: user.patronymic,
-        last_active: user.last_active,
+        token: UserClaim::sign(user_claim.clone()),
+        claim: user_claim,
     }))
     // UserClaim::sign(user_claim) // Посылаем Jwt токен
 }

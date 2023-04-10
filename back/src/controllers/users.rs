@@ -4,7 +4,7 @@ use okapi::openapi3::OpenApi;
 use crate::models::*;
 use crate::schema::users::{dsl as user, dsl::users};
 use rocket::{serde::{json::Json},http::Status};
-use super::{UserClaim};
+use super::auth::UserClaim;
 use rocket_okapi::{openapi, openapi_get_routes_spec};
 
 pub fn get_routes_and_docs() -> (Vec<rocket::Route>, OpenApi){

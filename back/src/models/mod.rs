@@ -1,9 +1,11 @@
 mod user;
-mod privilege;
+mod counterparty;
+mod enums;
 
 
-pub use privilege::*;
+pub use enums::*;
 pub use user::*;
+pub use counterparty::*;
 
 use rocket::http::Status;
 use std::env;

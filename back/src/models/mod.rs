@@ -1,13 +1,16 @@
 mod user;
-use rocket::http::Status;
+mod counterparty;
+mod enums;
+
+
+pub use enums::*;
 pub use user::*;
+pub use counterparty::*;
 
+use rocket::http::Status;
 use std::env;
-
-
 use diesel::prelude::*;
 use diesel_logger::LoggingConnection;
-
 use crate::errors::MapStatus;
 
 pub type Conn = LoggingConnection<SqliteConnection>;

@@ -2,9 +2,9 @@ use crate::{errors::{JsonResult, MapStatus}};
 use diesel::prelude::*;
 use okapi::openapi3::OpenApi;
 use crate::models::*;
-use crate::schema::users::dsl::*;
+use crate::schema::users::{dsl as user, dsl::users};
 use rocket::{serde::{json::Json},http::Status};
-use super::{UserClaim};
+use super::auth::UserClaim;
 use rocket_okapi::{openapi, openapi_get_routes_spec};
 
 pub fn get_routes_and_docs() -> (Vec<rocket::Route>, OpenApi){
@@ -12,8 +12,8 @@ pub fn get_routes_and_docs() -> (Vec<rocket::Route>, OpenApi){
 }
 
 /// Сокращенная версия для получения пользователя по id
-fn user_by_id(conn: &mut Conn,id: i32) -> Result<User,Status> {
-    users.filter(user_id.eq(id)).first(conn).status()
+pub fn user_by_id(conn: &mut Conn,id: i32) -> Result<User,Status> {
+    users.filter(user::id.eq(id)).first(conn).status()
 }
 
 

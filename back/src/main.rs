@@ -13,7 +13,7 @@ use rocket_okapi::{
 use dotenvy::dotenv;
 
 use crate::{
-    controllers::{auth, users},
+    controllers::{auth, users, counterparties,vats,roles,counterparty_statuses},
     cors::Cors,
 };
 
@@ -39,6 +39,11 @@ fn rocket() -> _ {
         rocket, "/api".to_owned(),config,
         "/auth" => auth::get_routes_and_docs(),
         "/users" => users::get_routes_and_docs(),
+        "/counterparties" => counterparties::get_routes_and_docs(),
+        "/roles" => roles::get_routes_and_docs(),
+        "/vats" => vats::get_routes_and_docs(),
+        "/counterparty_statuses" => counterparty_statuses::get_routes_and_docs(),
+
     };
     rocket
         .mount("/swagger", make_swagger_ui(&get_docs()))

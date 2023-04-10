@@ -1,3 +1,4 @@
--- This file should undo anything in `up.sql`
-DROP TABLE users;
-DROP TABLE privileges;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS privileges;
+DROP TABLE IF EXISTS user_priveleges;
+DROP TABLE IF EXISTS user_privelege;
